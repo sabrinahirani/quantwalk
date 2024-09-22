@@ -1,108 +1,101 @@
-## Perpetual Pricing Using Quantum Walks
+## QuantWalk: A Quantum Walk Down Wall Street
 
-### Background: What is a Perpetual?
+### Background
 
-In [decentralized finance](https://ethereum.org/en/defi/), a [perpetual](https://dydx.exchange/crypto-learning/perpetuals-crypto) is a type of futures contract with no expiration date (meaning that positions can be held indefinitely). These contracts use a funding rate mechanism to facilitate periodic payments to keep the contract price close to the price of the underlying asset spot price. Decentralized platforms, such as [dydx](https://dydx.exchange/), facilitate these trades using smart contracts, providing a transparent and permissionless trading environment.
+In [decentralized finance](https://ethereum.org/en/defi/), a perpetual is a type of futures contract with no expiration date (meaning that positions can be held indefinitely). These contracts use a funding rate mechanism to facilitate regular payments to keep the contract price close to the price of the underlying asset spot price. Decentralized platforms, such as [dydx](https://dydx.exchange/), facilitate these trades using smart contracts, providing a transparent and permissionless trading environment. With this project *QuantWalk: A Quantum Walk Down Wall Street*, we seek to take advantage of the properties of the discrete-time quantum walk to price perpertuals more effectively than classical pricing strategies.
 
-### Pricing: The Classical Approach
+*<u>Reference</u>:* *On The Potential Of Quantum Walks For Modelling Financial Return Distributions.* Backer et Al. Available at: https://arxiv.org/html/2403.19502v1. 
 
-In a classical setting, pricing relies on the assumption that asset prices follow Geometric Brownian Motion (GBM): a stochastic process that models the behaviour of asset prices over time:
+### The Classical Approach
+
+In a classical setting, pricing relies on the assumption that asset prices follow a stochastic process known as [Geometric Brownian Motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion) (GBM):
 
 $$
 dS_t = \mu S_t \, dt + \sigma S_t \, dW_t
 $$
 
-Here, the drift term $\mu$ represents the average rate of return while the volatility term $\sigma$ measures the extent to which the price fluctuates.
+Here, the drift term $\mu$ indicates the average rate of return while the volatility term $\sigma$ indicates the extent to which the price fluctuates.
 
-**Common Approaches:**
-
-1) Black-Scholes Model: One of the most widely used models in finance, it derives a closed-form solution for the pricing of options and derivatives, including perpetual options. It assumes constant volatility and allows for the calculation of fair value based on inputs like strike price, time to expiration, and risk-free interest rate.
-
-2) Monte Carlo Simulations: This numerical method simulates a large number of potential future price paths based on the GBM model. By aggregating the results, traders can estimate the expected price and associated risks, making it useful for complex derivatives where analytical solutions may not be available.
-
-**Limitations:**
-
-* Assumptions of Normality: GBM assumes that returns are normally distributed, which can underestimate the probability of extreme events or "fat tails" in financial markets. The inability of the GBM model to capture large price changes which occur much more frequently than the Gaussian distribution predicts. When examining return distributions on small time scales, one finds that the distribution is more peaked and the tails are heavier than the Gaussian assumption would permit. This can be described as a “leptokurtic” feature of the return distributions. Furthermore, GBM results in symmetric return distributions. For real data, however, the tails rarely display full symmetry. 
-
-* Constant Volatility: Many classical models assume constant volatility, which fails to capture the changing nature of market conditions over time, leading to potential mispricing.
-
-* Market Dynamics: Classical approaches often do not account for behavioral factors or other market anomalies that can influence prices, limiting their effectiveness in certain scenarios.
-
-These limitations lead us to a quantum approach.
+However, there are numerous limitations to this model: GBM assumes that returns follow a normal distribution, underestimating the probability of extreme price changes which occur far more frequently than predicted by the normal distribution. This can be described as a 'leptokurtic' feature of the return distribution. Furthermore, this model produces a symmetric return distribution whereas real data rarely displays full symmetry. These limitations lead us to consider a quantum approach.
 
 
-### Pricing: A Quantum Approach
+### A Quantum Approach
 
-In a quantum setting, we propose a more sophisticated approach by replacing the wiener process with a quantum walk:
+In a quantum setting, we propose a more sophisticated approach by replacing the [Wiener process](https://en.wikipedia.org/wiki/Wiener_process) $W_t$ with a quantum walk $Q_t$:
 
 $$
 dS_t = \mu S_t \, dt + \sigma S_t \, dQ_t
 $$
 
-Here, $dQ_t$ represents a quantum walk.
-
-Quantum walks are the quantum equivalent of the classical Markov chain.
-
 ### Implementation
 
-In this section, we implement a discrete-time quantum walk for pricing perpetual contracts.
+A quantum walk is the quantum analogue of a classical random walk, where the walker can exist in a superposition of states, leading to faster spreading and unique interference patterns. It is used in quantum computing and algorithms for tasks like search and optimization. Here, we implement a discrete-time quantum walk for pricing perpetuals. 
 
-#### Quantum Walk Setup
+To do this, we use the following registers: a coin register $\mathcal{H}_C$ which remains in superposition and a position register $\mathcal{H}_P$ which holds price information. Thus, the quantum space for the entire walker is given by $\mathcal{H}_C \otimes \mathcal{H}_C$.
 
-We utilize two quantum registers: a coin register \( H_C \) and a position register \( H_P \). The coin register facilitates superposition, while the position register holds the price information.
+Now, to take a step in the quantum walk, we apply a coin operator to $\mathcal{H}_C$ to put the walker in superposition. In this implementation, we use a Hadamard:
 
-1. **Coin Register**: We employ a Hadamard gate on the coin register to create superposition, referred to as the coin operator.
+$$
+C |0\rangle = H |0\rangle = \frac{1}{\sqrt{2}} \left( |0\rangle + |1\rangle \right)
+$$
 
-   ```python
-   # Apply Hadamard on the coin register
-   circuit.h(coin_register[0])
-    ```
+$$
+C |1\rangle = H |1\rangle = \frac{1}{\sqrt{2}} \left( |0\rangle - |1\rangle \right)
+$$
 
-2. **Position Register**: The position register is used to calculate the price. We apply a controlled NOT (CNOT) gate from the coin register to a shift gate, enabling phase kickback and creating an entangled system that can explore multiple paths simultaneously.
+From here, We apply a controlled NOT (CNOT) gate from the coin register to a shift gate, enabling phase kickback and creating an entangled system that can explore multiple paths simultaneously.
 
-**Shift Operations:**
+These shift operators are defined as follows:
 
-The `shift_right` and `shift_left` functions manage the entangled states between the coin and position registers:
+$$
+S |0\rangle |j\rangle = |0\rangle |j+1\rangle
+$$
 
-```
+$$
+S |1\rangle |j\rangle = |1\rangle |j-1\rangle
+$$
+
+```python
 def shift_right(circuit, position_register):
-    """Shift |j> to |j+1>."""
     for i in range(len(position_register)):
-        circuit.cx(coin_register[0], position_register[i])  # Controlled shift
-        circuit.x(position_register[i])  # Flip position register
+        circuit.cx(coin_register[0], position_register[i])
+        circuit.x(position_register[i])
 
 def shift_left(circuit, position_register):
-    """Shift |j> to |j-1>."""
-    circuit.x(coin_register[0])  # Flip for opposite shift
+    circuit.x(coin_register[0])
     for i in range(len(position_register)):
-        circuit.cx(coin_register[0], position_register[i])  # Controlled shift
-    circuit.x(coin_register[0])  # Flip back
+        circuit.cx(coin_register[0], position_register[i])
+    circuit.x(coin_register[0]) 
 ```
 
-**Explanation**:
+Now, for each step in our walk, we apply these gates simultaneously:
 
-    shift_right shifts the position state to the right (increasing price) based on the state of the coin.
-    shift_left shifts the position state to the left (decreasing price) similarly.
+$$
+U = SC
+$$
 
-**Step Function:**
-
-The step function applies the Hadamard gate and the shift operations:
-
-```
+```python
 def step(circuit, position_register, coin_register):
-    """U = SC."""
-    # Apply Hadamard to the coin
     circuit.h(coin_register[0])
-    # Apply controlled shift operators
     shift_right(circuit, position_register)
     shift_left(circuit, position_register)
 ```
 
-This function prepares the system for the next step of the quantum walk by putting the coin in superposition and then performing the shift operations, enabling the exploration of multiple price paths.
+To simulate the quantum walk over $n$ steps, we repeat the step function $n$ times:
+
+$$
+U_n = (SC)^n
+$$
+
+```python
+for _ in range(n_steps):
+    step(circuit, position_register, coin_register)
+```
+
 
 ### Conclusion
 
-The classical model, particularly the Geometric Brownian Motion (GBM), faces several limitations that the quantum walk model effectively addresses. GBM struggles to capture large price changes, whereas the quantum walk model offers greater flexibility in the shape of return distributions, accommodating bipolar behaviors, biases towards increasing or decreasing prices, extreme changes, and decoherence effects. Additionally, while GBM produces symmetric return distributions, the quantum walk model allows for biases by tuning parameters such as (η, θ) and |ψ(0)⟩. Unlike GBM, which assumes a Markovian process characterized by independent and identically distributed (i.i.d.) randomness as per the Efficient Market Hypothesis, the quantum walk model introduces non-Markovian properties due to interference effects. Moreover, while classical models like the Lognormal and Poisson processes exhibit divergent higher moments, the quantum walk model ensures that these moments do not diverge. Lastly, where classical models provide limited insight into price evolution dynamics and focus solely on return distributions, the quantum walk model offers a more comprehensive dynamical time evolution that ultimately leads to richer return distributions.
+Overall, we observe that the classical model faces several limitations that are addressed by the quantum model. The quantum walk model offers greater flexibility in the shape of the return distribution, accomodating biasas, bipolar behaviours, and extreme price changes (which the classical model fails to simulate). Additionally, unlike the classical model which produces symmetric return distributions, the quantum walk model allows for biases and introduces non-markovian properties due to interference effects. 
 
 By leveraging quantum mechanics, this pricing model addresses the inherent limitations of classical approaches, offering a more comprehensive understanding of asset price dynamics. As the financial landscape evolves, the quantum approach holds promise for enhancing the accuracy and reliability of pricing models in an increasingly complex market environment.
 
