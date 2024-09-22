@@ -101,7 +101,9 @@ By leveraging quantum mechanics, this pricing model addresses the inherent limit
 
 ### Reference
 
-**On The Potential Of Quantum Walks For Modelling Financial Return Distributions.** Backer et Al. Available at: https://arxiv.org/html/2403.19502v1. 
+* **On The Potential Of Quantum Walks For Modelling Financial Return Distributions.** Backer et Al. Available at: https://arxiv.org/html/2403.19502v1. 
+
+* **Quantum Walk Search Algorithm.** Qiskit Textbook. Available at: https://github.com/Qiskit/textbook/blob/main/notebooks/ch-algorithms/quantum-walk-search-algorithm.ipynb
 
 
 
