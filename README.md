@@ -27,6 +27,8 @@ $$
 
 ### Implementation
 
+![Quantum Walk Circuit](circuit.png)
+
 A quantum walk is the quantum analogue of a classical random walk, where the walker can exist in a superposition of states, leading to faster spreading and unique interference patterns. It is used in quantum computing and algorithms for tasks like search and optimization. Here, we implement a discrete-time quantum walk for pricing perpetuals. 
 
 To do this, we use the following registers: a coin register $\mathcal{H}_C$ which remains in superposition and a position register $\mathcal{H}_P$ which holds price information. Thus, the quantum space for the entire walker is given by $\mathcal{H}_C \otimes \mathcal{H}_C$.
