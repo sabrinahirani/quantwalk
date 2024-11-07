@@ -2,7 +2,7 @@
 
 ### Background
 
-In [decentralized finance](https://ethereum.org/en/defi/), a perpetual is a type of futures contract with no expiration date (meaning that positions can be held indefinitely). These contracts use a funding rate mechanism to facilitate regular payments to keep the contract price close to the price of the underlying asset spot price. Decentralized platforms, such as [dydx](https://dydx.exchange/), facilitate these trades using smart contracts, providing a transparent and permissionless trading environment. With this project *QuantWalk: A Quantum Walk Down Wall Street*, we seek to take advantage of the properties of the discrete-time quantum walk to price perpertuals more effectively than classical pricing strategies.
+In [decentralized finance](https://ethereum.org/en/defi/), a perpetual is a type of futures contract with no expiration date (meaning that positions can be held indefinitely). These contracts use a funding rate mechanism to facilitate regular payments to keep the contract price close to the price of the underlying asset spot price. Decentralized platforms, such as [dydx](https://dydx.exchange/), facilitate these trades using smart contracts, providing a transparent and permissionless trading environment. With this project, we seek to take advantage of the properties of the discrete-time quantum walk to price perpertuals more effectively than classical pricing strategies.
 
 ### The Classical Approach
 
