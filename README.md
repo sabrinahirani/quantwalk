@@ -1,4 +1,4 @@
-## QuantWalk: A Quantum Walk Down Wall Street
+## QuantWalk
 
 ### Background
 
